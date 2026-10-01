@@ -1,0 +1,60 @@
+{
+  "expected_relation": "answer_invariant",
+  "files": {
+    "test": {
+      "invariance_family_counts": {
+        "entity_renaming": 3,
+        "fact_order_shuffle": 3,
+        "irrelevant_distractor_edit": 3,
+        "non_load_bearing_polarity": 3,
+        "paraphrase": 3
+      },
+      "path": "data/grr002/grr002-test.jsonl",
+      "records": 15,
+      "sha256": "59b125c1d06d19de23d5241f6e161112e5470606863da57a1aedfdc33dacaed6"
+    },
+    "train": {
+      "invariance_family_counts": {
+        "entity_renaming": 14,
+        "fact_order_shuffle": 14,
+        "irrelevant_distractor_edit": 14,
+        "non_load_bearing_polarity": 14,
+        "paraphrase": 14
+      },
+      "path": "data/grr002/grr002-train.jsonl",
+      "records": 70,
+      "sha256": "e4b174dc2d3ef13e0dfd988179f8c0d8e21e4a9a2850b6d71e32c03342918733"
+    },
+    "validation": {
+      "invariance_family_counts": {
+        "entity_renaming": 3,
+        "fact_order_shuffle": 3,
+        "irrelevant_distractor_edit": 3,
+        "non_load_bearing_polarity": 3,
+        "paraphrase": 3
+      },
+      "path": "data/grr002/grr002-validation.jsonl",
+      "records": 15,
+      "sha256": "f829fe1d6dcdc81a129d532e81684c3ad1a829a8ace7e06abace472e25465a91"
+    }
+  },
+  "generator": "src/generate_grr002.py",
+  "invariance_families": [
+    "fact_order_shuffle",
+    "paraphrase",
+    "entity_renaming",
+    "irrelevant_distractor_edit",
+    "non_load_bearing_polarity"
+  ],
+  "rail_id": "GRR-002",
+  "split_counts": {
+    "test": 15,
+    "train": 70,
+    "validation": 15
+  },
+  "split_seeds": {
+    "test": 63001,
+    "train": 41001,
+    "validation": 52001
+  }
+}

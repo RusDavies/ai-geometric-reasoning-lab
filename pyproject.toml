@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geometric-reasoning"
+version = "0.1.0"
+description = "Empirical tooling for perturbation-based geometric and relational reasoning evaluation."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "Geometric Reasoning Project Contributors" }
+]
+keywords = [
+  "geometric-reasoning",
+  "llm-evaluation",
+  "robustness",
+  "perturbation-testing",
+  "small-models"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+]
+dependencies = []
+
+[project.optional-dependencies]
+hf = [
+  "torch>=2.0",
+  "transformers>=4.40"
+]
+dev = []
+
+[project.urls]
+Homepage = "https://github.com/RusDavies/geometric-reasoning"
+Source = "https://github.com/RusDavies/geometric-reasoning"
+
+[tool.setuptools]
+packages = []

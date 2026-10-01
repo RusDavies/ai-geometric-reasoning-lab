@@ -1,0 +1,16 @@
+{
+  "examples": 140,
+  "output": "data/grr001/grr001-train-prompts.jsonl",
+  "output_sha256": "b9246283b06a753bf5ee589579542c9f4d3821dd9199719d2c313a069886fc47",
+  "records": 70,
+  "sides": [
+    "canonical",
+    "perturbed"
+  ],
+  "source": "data/grr001/grr001-train.jsonl",
+  "source_sha256": "7775db836bdbd00cdc9e682e882798f1879c30223dd7f2941d878f5d17b1b24d",
+  "target_values": [
+    "True",
+    "False"
+  ]
+}

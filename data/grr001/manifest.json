@@ -1,0 +1,31 @@
+{
+  "files": {
+    "test": {
+      "path": "data/grr001/grr001-test.jsonl",
+      "records": 15,
+      "sha256": "4da6df17a4b53ed80c9f27381a10850cbfb35cf62c87b1a06d794c628cf62999"
+    },
+    "train": {
+      "path": "data/grr001/grr001-train.jsonl",
+      "records": 70,
+      "sha256": "7775db836bdbd00cdc9e682e882798f1879c30223dd7f2941d878f5d17b1b24d"
+    },
+    "validation": {
+      "path": "data/grr001/grr001-validation.jsonl",
+      "records": 15,
+      "sha256": "3640b01626a7be72287b271f042cf5d64ae0c8cec013b706ce9d68b0b8abc93c"
+    }
+  },
+  "generator": "src/generate_grr001.py",
+  "rail_id": "GRR-001",
+  "split_counts": {
+    "test": 15,
+    "train": 70,
+    "validation": 15
+  },
+  "split_seeds": {
+    "test": 33001,
+    "train": 11001,
+    "validation": 22001
+  }
+}

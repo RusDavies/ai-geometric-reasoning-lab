@@ -1,0 +1,184 @@
+{
+  "expected_relation": "label_changes",
+  "files": {
+    "test": {
+      "answer_label_counts": {
+        "above": 2,
+        "below": 3,
+        "between": 3,
+        "boundary": 2,
+        "closer_to_first": 3,
+        "closer_to_second": 2,
+        "contains": 3,
+        "different_point": 3,
+        "does_not_contain": 3,
+        "inside": 2,
+        "left_of": 3,
+        "not_between": 3,
+        "off_line": 2,
+        "off_segment": 1,
+        "on_line": 2,
+        "on_segment": 1,
+        "outside": 2,
+        "right_of": 2,
+        "same_distance": 1,
+        "same_point": 3,
+        "same_x": 1,
+        "same_y": 1
+      },
+      "path": "data/grr003/grr003-test.jsonl",
+      "records": 24,
+      "relation_family_counts": {
+        "between": 3,
+        "containment": 3,
+        "distance_comparison": 3,
+        "horizontal_order": 3,
+        "inside": 3,
+        "line_membership": 3,
+        "point_identity": 3,
+        "vertical_order": 3
+      },
+      "sha256": "4b301ca7131381221c46fe344ef6a6fac6038528243469035843c1ac52861d6c"
+    },
+    "train": {
+      "answer_label_counts": {
+        "above": 10,
+        "below": 14,
+        "between": 14,
+        "boundary": 9,
+        "closer_to_first": 14,
+        "closer_to_second": 10,
+        "contains": 14,
+        "different_point": 14,
+        "does_not_contain": 14,
+        "inside": 10,
+        "left_of": 14,
+        "not_between": 14,
+        "off_line": 7,
+        "off_segment": 7,
+        "on_line": 7,
+        "on_segment": 7,
+        "outside": 9,
+        "right_of": 10,
+        "same_distance": 4,
+        "same_point": 14,
+        "same_x": 4,
+        "same_y": 4
+      },
+      "path": "data/grr003/grr003-train.jsonl",
+      "records": 112,
+      "relation_family_counts": {
+        "between": 14,
+        "containment": 14,
+        "distance_comparison": 14,
+        "horizontal_order": 14,
+        "inside": 14,
+        "line_membership": 14,
+        "point_identity": 14,
+        "vertical_order": 14
+      },
+      "sha256": "0e4bb753e92d490c3a06636dca475ef93aae04528722795499899516cd3a6620"
+    },
+    "validation": {
+      "answer_label_counts": {
+        "above": 2,
+        "below": 3,
+        "between": 3,
+        "boundary": 2,
+        "closer_to_first": 3,
+        "closer_to_second": 2,
+        "contains": 3,
+        "different_point": 3,
+        "does_not_contain": 3,
+        "inside": 2,
+        "left_of": 3,
+        "not_between": 3,
+        "off_line": 2,
+        "off_segment": 1,
+        "on_line": 2,
+        "on_segment": 1,
+        "outside": 2,
+        "right_of": 2,
+        "same_distance": 1,
+        "same_point": 3,
+        "same_x": 1,
+        "same_y": 1
+      },
+      "path": "data/grr003/grr003-validation.jsonl",
+      "records": 24,
+      "relation_family_counts": {
+        "between": 3,
+        "containment": 3,
+        "distance_comparison": 3,
+        "horizontal_order": 3,
+        "inside": 3,
+        "line_membership": 3,
+        "point_identity": 3,
+        "vertical_order": 3
+      },
+      "sha256": "4a22bcee662f7f95a4af0222acf670779ad9b974e7e373c7580e22cc94c46ad8"
+    }
+  },
+  "generator": "src/generate_grr003.py",
+  "rail_id": "GRR-003",
+  "relation_families": [
+    "point_identity",
+    "line_membership",
+    "containment",
+    "distance_comparison",
+    "horizontal_order",
+    "vertical_order",
+    "inside",
+    "between"
+  ],
+  "relation_labels": {
+    "between": [
+      "between",
+      "not_between"
+    ],
+    "containment": [
+      "contains",
+      "does_not_contain"
+    ],
+    "distance_comparison": [
+      "closer_to_first",
+      "closer_to_second",
+      "same_distance"
+    ],
+    "horizontal_order": [
+      "left_of",
+      "right_of",
+      "same_x"
+    ],
+    "inside": [
+      "inside",
+      "boundary",
+      "outside"
+    ],
+    "line_membership": [
+      "on_line",
+      "off_line",
+      "on_segment",
+      "off_segment"
+    ],
+    "point_identity": [
+      "same_point",
+      "different_point"
+    ],
+    "vertical_order": [
+      "below",
+      "above",
+      "same_y"
+    ]
+  },
+  "split_counts": {
+    "test": 24,
+    "train": 112,
+    "validation": 24
+  },
+  "split_seeds": {
+    "test": 93001,
+    "train": 71001,
+    "validation": 82001
+  }
+}

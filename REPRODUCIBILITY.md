@@ -42,6 +42,7 @@ Run focused tests:
 ```bash
 python3 -m unittest tests.test_generate_grr001 -q
 python3 -m unittest tests.test_generate_grr002 -q
+python3 -m unittest tests.test_generate_grr003 -q
 python3 -m unittest tests.test_eval_harness -q
 ```
 
@@ -65,6 +66,12 @@ python3 src/generate_grr002.py \
   --train-count 70 \
   --validation-count 15 \
   --test-count 15
+```
+
+Generate deterministic GRR-003 spatial/program geometry splits:
+
+```bash
+python3 src/generate_grr003.py --output-dir data/grr003
 ```
 
 Export GRR-001 training prompts:

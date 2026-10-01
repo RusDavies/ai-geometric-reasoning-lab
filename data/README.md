@@ -27,3 +27,9 @@ Data recipes, small fixtures, and generated dataset notes belong here.
 - `grr002/grr002-train.jsonl`: deterministic training split.
 - `grr002/grr002-validation.jsonl`: deterministic validation split.
 - `grr002/grr002-test.jsonl`: deterministic held-out test split.
+- `grr003/manifest.json`: generated GRR-003 spatial/program geometry split
+  manifest with seeds, checksums, relation-family counts, and answer-label
+  counts.
+- `grr003/grr003-train.jsonl`: deterministic training split.
+- `grr003/grr003-validation.jsonl`: deterministic validation split.
+- `grr003/grr003-test.jsonl`: deterministic held-out test split.

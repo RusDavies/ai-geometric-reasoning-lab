@@ -62,6 +62,20 @@ grammar, balances invariance families by split, records `answer_invariant` as
 the expected pair relation, and validates split vocabulary separation before
 writing JSONL files and a manifest.
 
+## GRR-003 Generator
+
+Generate deterministic GRR-003 spatial/program geometry splits:
+
+```bash
+python3 src/generate_grr003.py --output-dir data/grr003
+```
+
+The generator emits text scene programs with exact deterministic labels for
+point identity, line and segment membership, containment, distance comparison,
+horizontal and vertical order, inside/boundary/outside, and between relations.
+It records canonical/perturbed label-changing pairs, checker traces,
+relation-family counts, answer-label counts, split seeds, and checksums.
+
 ## Training Export
 
 Export GRR-001 records into prompt/target examples:

@@ -47,6 +47,12 @@ Generate deterministic GRR-002 invariance-control splits:
 python3 src/generate_grr002.py --output-dir data/grr002 --train-count 70 --validation-count 15 --test-count 15
 ```
 
+Generate deterministic GRR-003 spatial/program geometry splits:
+
+```bash
+python3 src/generate_grr003.py --output-dir data/grr003
+```
+
 Run the local Ollama eval harness when an Ollama model is available:
 
 ```bash

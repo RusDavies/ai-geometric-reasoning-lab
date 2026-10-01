@@ -1,11 +1,11 @@
 cff-version: 1.2.0
 message: "If you use this project, please cite it using this metadata."
 type: software
-title: "geometric-reasoning-lab"
+title: "ai-geometric-reasoning-lab"
 abstract: "Empirical tooling for perturbation-based geometric and relational reasoning evaluation, small-model training experiments, and bounded claim tracking."
 authors:
   - name: "Geometric Reasoning Project Contributors"
-repository-code: "https://github.com/RusDavies/geometric-reasoning-lab"
+repository-code: "https://github.com/RusDavies/ai-geometric-reasoning-lab"
 license: "Apache-2.0"
 keywords:
   - geometric reasoning

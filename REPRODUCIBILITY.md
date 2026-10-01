@@ -124,6 +124,16 @@ python3 src/eval_hf_causal.py \
   --output evals/results/grr001-validation-hf-smollm2-135m-base-choice.json
 ```
 
+Run GRR-003 closed-label answer-choice evaluation:
+
+```bash
+python3 src/eval_hf_causal.py \
+  --dataset data/grr003/grr003-validation.jsonl \
+  --model-id HuggingFaceTB/SmolLM2-135M \
+  --answer-mode choice \
+  --output evals/results/grr003-validation-hf-smollm2-135m-base-choice.json
+```
+
 ## Training Smoke
 
 Run the dependency-light dry run:

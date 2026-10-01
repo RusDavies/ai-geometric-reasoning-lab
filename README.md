@@ -59,6 +59,13 @@ Run the local Ollama eval harness when an Ollama model is available:
 python3 src/eval_harness.py --model smollm2:135m --dataset data/grr001-mini.jsonl --output runs/grr001-mini-ollama.json
 ```
 
+Run a closed-label GRR-003 Hugging Face evaluation when optional ML
+dependencies are installed:
+
+```bash
+python3 src/eval_hf_causal.py --dataset data/grr003/grr003-validation.jsonl --answer-mode choice --output evals/results/grr003-validation-hf-smollm2-135m-base-choice.json
+```
+
 ## Installation Notes
 
 The deterministic generators and unit tests use the Python standard library.

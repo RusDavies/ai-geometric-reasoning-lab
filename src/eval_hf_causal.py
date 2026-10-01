@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate GRR-001/GRR-002 pairs against a Hugging Face causal language model."""
+"""Evaluate GRR-001/GRR-002/GRR-003 pairs against a Hugging Face causal language model."""
 
 from __future__ import annotations
 
@@ -17,8 +17,11 @@ try:
         ItemResult,
         build_prompt,
         comparison_side_key,
+        is_label_change_expected,
         item_contains_negation,
+        item_allowed_labels,
         load_jsonl,
+        parse_answer,
         parse_true_false,
         result_answer_changed,
         summarize,
@@ -30,8 +33,11 @@ except ImportError:
         ItemResult,
         build_prompt,
         comparison_side_key,
+        is_label_change_expected,
         item_contains_negation,
+        item_allowed_labels,
         load_jsonl,
+        parse_answer,
         parse_true_false,
         result_answer_changed,
         summarize,
@@ -65,7 +71,7 @@ def evaluate_records(records: list[dict[str, Any]], run_item: RunItem) -> list[d
         both_wrong = not canonical.correct and not comparison.correct
         invalid_output = canonical.invalid_output or comparison.invalid_output
         same_answer_when_gold_flips = (
-            expected_relation == "answer_flip"
+            is_label_change_expected(expected_relation)
             and canonical.parsed_answer is not None
             and canonical.parsed_answer == comparison.parsed_answer
         )
@@ -74,7 +80,7 @@ def evaluate_records(records: list[dict[str, Any]], run_item: RunItem) -> list[d
             and result_answer_changed(canonical.__dict__, comparison.__dict__)
         )
         exactly_one_correct = canonical.correct != comparison.correct
-        flip_failure = expected_relation == "answer_flip" and (
+        flip_failure = is_label_change_expected(expected_relation) and (
             exactly_one_correct or same_answer_when_gold_flips
         )
         invariance_failure = expected_relation == "answer_invariant" and (
@@ -85,11 +91,12 @@ def evaluate_records(records: list[dict[str, Any]], run_item: RunItem) -> list[d
                 "record_id": record["record_id"],
                 "rail_id": record["rail_id"],
                 "difficulty": record["difficulty"],
-                "hop_count": record["hop_count"],
+                "hop_count": record.get("hop_count"),
                 "distractor_count": record["distractor_count"],
                 "pair_kind": record.get("pair_kind"),
                 "expected_relation": expected_relation,
                 "comparison_side": comparison_side,
+                "relation_family": record.get("relation_family"),
                 "invariance_family": record.get("invariance_family"),
                 "negation_involved": item_contains_negation(record["canonical"])
                 or item_contains_negation(record[comparison_side]),
@@ -139,7 +146,7 @@ def run_hf_choice_item(
     item: dict[str, Any], model: Any, tokenizer: Any, args: argparse.Namespace
 ) -> ItemResult:
     prompt = build_prompt(item)
-    scores = candidate_logprobs(prompt, model, tokenizer, ["True", "False"])
+    scores = candidate_logprobs(prompt, model, tokenizer, item_allowed_labels(item))
     answer = select_answer_from_scores(scores)
     return ItemResult(
         raw_output=answer,
@@ -164,7 +171,7 @@ def run_hf_item(item: dict[str, Any], model: Any, tokenizer: Any, args: argparse
         )
     generated_ids = output_ids[0][encoded["input_ids"].shape[-1] :]
     raw_output = tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
-    parsed = parse_true_false(raw_output)
+    parsed = parse_answer(raw_output, item_allowed_labels(item))
     return ItemResult(
         raw_output=raw_output,
         parsed_answer=parsed,
@@ -206,7 +213,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
             "provider": "huggingface_causal_lm",
             "dataset": str(dataset_path),
             "dataset_sha256": sha256_file(dataset_path),
-            "prompt_template": PROMPT_TEMPLATE,
+            "prompt_template": "dynamic: facts prompt or scene-program allowed-label prompt",
             "generation_options": {
                 "answer_mode": args.answer_mode,
                 "do_sample": False,

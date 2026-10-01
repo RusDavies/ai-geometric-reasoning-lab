@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Minimal paired eval harness for GRR-001/GRR-002 records."""
+"""Minimal paired eval harness for GRR-001/GRR-002/GRR-003 records."""
 
 from __future__ import annotations
 
@@ -14,7 +14,9 @@ from typing import Any
 from urllib import error, request
 
 
-PROMPT_TEMPLATE = """Answer the question using only the facts below. Reply with exactly True or False.
+TRUE_FALSE_LABELS = ["True", "False"]
+
+FACT_PROMPT_TEMPLATE = """Answer the question using only the facts below. Reply with exactly True or False.
 
 Facts:
 {facts}
@@ -22,6 +24,20 @@ Facts:
 Question:
 {question}
 """
+
+SCENE_PROMPT_TEMPLATE = """Answer the question using only the scene program below. Reply with exactly one allowed label.
+
+Allowed labels:
+{allowed_labels}
+
+Scene program:
+{program}
+
+Question:
+{question}
+"""
+
+PROMPT_TEMPLATE = FACT_PROMPT_TEMPLATE
 
 
 @dataclass(frozen=True)
@@ -48,21 +64,37 @@ def load_jsonl(path: Path, limit: int | None = None) -> list[dict[str, Any]]:
     return records
 
 
+def item_allowed_labels(item: dict[str, Any]) -> list[str]:
+    return list(item.get("allowed_labels", TRUE_FALSE_LABELS))
+
+
 def build_prompt(item: dict[str, Any]) -> str:
+    if "program" in item:
+        program = "\n".join(item["program"])
+        allowed_labels = "\n".join(f"- {label}" for label in item_allowed_labels(item))
+        return SCENE_PROMPT_TEMPLATE.format(
+            allowed_labels=allowed_labels,
+            program=program,
+            question=item["query"],
+        )
+
     facts = "\n".join(f"- {fact}" for fact in item["facts"])
     return PROMPT_TEMPLATE.format(facts=facts, question=item["question"])
 
 
-def parse_true_false(output: str) -> str | None:
+def parse_answer(output: str, allowed_labels: list[str]) -> str | None:
     tokens = output.strip().replace(".", " ").replace(",", " ").split()
     if not tokens:
         return None
-    first = tokens[0].casefold()
-    if first == "true":
-        return "True"
-    if first == "false":
-        return "False"
+    first = tokens[0].strip("\"'`").casefold()
+    label_map = {label.casefold(): label for label in allowed_labels}
+    if first in label_map:
+        return label_map[first]
     return None
+
+
+def parse_true_false(output: str) -> str | None:
+    return parse_answer(output, TRUE_FALSE_LABELS)
 
 
 def run_ollama(model: str, prompt: str, args: argparse.Namespace) -> str:
@@ -92,7 +124,7 @@ def run_ollama(model: str, prompt: str, args: argparse.Namespace) -> str:
 
 def evaluate_item(model: str, item: dict[str, Any], args: argparse.Namespace) -> ItemResult:
     raw_output = run_ollama(model, build_prompt(item), args)
-    parsed = parse_true_false(raw_output)
+    parsed = parse_answer(raw_output, item_allowed_labels(item))
     gold = item["answer"]
     return ItemResult(
         raw_output=raw_output,
@@ -109,7 +141,13 @@ def rate(count: int, total: int) -> float:
 
 
 def item_contains_negation(item: dict[str, Any]) -> bool:
+    if "facts" not in item:
+        return False
     return any(" not " in f" {fact.casefold()} " for fact in item["facts"])
+
+
+def is_label_change_expected(expected_relation: str) -> bool:
+    return expected_relation in {"answer_flip", "label_changes"}
 
 
 def comparison_side_key(record: dict[str, Any]) -> str:
@@ -221,6 +259,7 @@ def grouped_metrics(pair_results: list[dict[str, Any]]) -> dict[str, dict[str, d
         "by_hop_count": "hop_count",
         "by_distractor_count": "distractor_count",
         "by_negation_involved": "negation_involved",
+        "by_relation_family": "relation_family",
         "by_invariance_family": "invariance_family",
     }
     groups: dict[str, dict[str, dict[str, Any]]] = {}
@@ -229,7 +268,10 @@ def grouped_metrics(pair_results: list[dict[str, Any]]) -> dict[str, dict[str, d
         for result in pair_results:
             if field_name not in result:
                 continue
-            key = str(result[field_name]).lower()
+            value = result[field_name]
+            if value is None:
+                continue
+            key = str(value).lower()
             grouped_results.setdefault(key, []).append(result)
         if grouped_results:
             groups[group_name] = {
@@ -266,7 +308,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
         both_wrong = not canonical.correct and not comparison.correct
         invalid_output = canonical.invalid_output or comparison.invalid_output
         same_answer_when_gold_flips = (
-            expected_relation == "answer_flip"
+            is_label_change_expected(expected_relation)
             and canonical.parsed_answer is not None
             and canonical.parsed_answer == comparison.parsed_answer
         )
@@ -275,7 +317,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
             and result_answer_changed(canonical.__dict__, comparison.__dict__)
         )
         exactly_one_correct = canonical.correct != comparison.correct
-        flip_failure = expected_relation == "answer_flip" and (
+        flip_failure = is_label_change_expected(expected_relation) and (
             exactly_one_correct or same_answer_when_gold_flips
         )
         invariance_failure = expected_relation == "answer_invariant" and (
@@ -286,11 +328,12 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
                 "record_id": record["record_id"],
                 "rail_id": record["rail_id"],
                 "difficulty": record["difficulty"],
-                "hop_count": record["hop_count"],
+                "hop_count": record.get("hop_count"),
                 "distractor_count": record["distractor_count"],
                 "pair_kind": record.get("pair_kind"),
                 "expected_relation": expected_relation,
                 "comparison_side": comparison_side,
+                "relation_family": record.get("relation_family"),
                 "invariance_family": record.get("invariance_family"),
                 "negation_involved": item_contains_negation(record["canonical"])
                 or item_contains_negation(record[comparison_side]),
@@ -320,7 +363,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
                 "num_predict": args.num_predict,
             },
             "dataset": str(dataset_path),
-            "prompt_template": PROMPT_TEMPLATE,
+            "prompt_template": "dynamic: facts prompt or scene-program allowed-label prompt",
         },
         "summary": summarize(pair_results, args),
         "pairs": pair_results,

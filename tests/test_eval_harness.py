@@ -126,6 +126,48 @@ class EvalHarnessMetricsTests(unittest.TestCase):
         self.assertEqual(metrics["counts"]["answer_changed_when_gold_invariant"], 1)
         self.assertEqual(metrics["invariance_failure_rate"], 1.0)
 
+    def test_scene_prompt_uses_allowed_labels_and_program(self) -> None:
+        item = {
+            "program": [
+                "point A = (0, 0)",
+                "point B = (1, 0)",
+            ],
+            "query": "What is the relation for horizontal_order(A, B)?",
+            "allowed_labels": ["left_of", "right_of", "same_x"],
+            "answer": "left_of",
+        }
+
+        prompt = eval_harness.build_prompt(item)
+
+        self.assertIn("Allowed labels:", prompt)
+        self.assertIn("- left_of", prompt)
+        self.assertIn("Scene program:", prompt)
+        self.assertIn("point A = (0, 0)", prompt)
+
+    def test_parse_answer_uses_allowed_labels(self) -> None:
+        labels = ["left_of", "right_of", "same_x"]
+
+        self.assertEqual(eval_harness.parse_answer("right_of.", labels), "right_of")
+        self.assertIsNone(eval_harness.parse_answer("True", labels))
+
+    def test_label_changes_count_as_flip_failures(self) -> None:
+        pairs = [
+            {
+                "canonical": item_result("left_of", True),
+                "comparison": item_result("left_of", False),
+                "both_correct": False,
+                "both_wrong": False,
+                "exactly_one_correct": True,
+                "same_answer_when_gold_flips": True,
+                "flip_failure": True,
+                "invalid_output": False,
+            }
+        ]
+
+        metrics = eval_harness.pair_metrics(pairs)
+
+        self.assertEqual(metrics["flip_failure_rate"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

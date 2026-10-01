@@ -37,6 +37,13 @@ Use `--answer-mode choice` for binary GRR-001 runs when the goal is to score the
 model's preference between the allowed `True` and `False` answers instead of
 free-form generation compliance.
 
+GRR-003 records use scene programs and per-record closed labels. The harnesses
+build an allowed-label prompt from each item and parse against that label set:
+
+```bash
+python3 src/eval_hf_causal.py --dataset data/grr003/grr003-validation.jsonl --answer-mode choice
+```
+
 ## GRR-001 Generator
 
 Generate deterministic GRR-001 train, validation, and held-out test splits:

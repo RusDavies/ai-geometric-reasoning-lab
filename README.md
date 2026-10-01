@@ -1,4 +1,4 @@
-# geometric-reasoning
+# geometric-reasoning-lab
 
 Empirical tooling for perturbation-based geometric and relational reasoning
 evaluation, small-model training experiments, and bounded claim tracking.

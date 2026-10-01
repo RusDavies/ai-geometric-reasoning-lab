@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "geometric-reasoning"
+name = "geometric-reasoning-lab"
 version = "0.1.0"
 description = "Empirical tooling for perturbation-based geometric and relational reasoning evaluation."
 readme = "README.md"
@@ -39,8 +39,8 @@ hf = [
 dev = []
 
 [project.urls]
-Homepage = "https://github.com/RusDavies/geometric-reasoning"
-Source = "https://github.com/RusDavies/geometric-reasoning"
+Homepage = "https://github.com/RusDavies/geometric-reasoning-lab"
+Source = "https://github.com/RusDavies/geometric-reasoning-lab"
 
 [tool.setuptools]
 packages = []

@@ -37,6 +37,10 @@ Use `--answer-mode choice` for binary GRR-001 runs when the goal is to score the
 model's preference between the allowed `True` and `False` answers instead of
 free-form generation compliance.
 
+Choice-mode Hugging Face result files include per-label continuation scores,
+the selected label's runner-up, and the selected-vs-runner-up margin for each
+item.
+
 GRR-003 records use scene programs and per-record closed labels. The harnesses
 build an allowed-label prompt from each item and parse against that label set:
 

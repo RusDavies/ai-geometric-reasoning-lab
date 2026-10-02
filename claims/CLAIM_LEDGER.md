@@ -51,6 +51,10 @@ Evidence:
   `../evals/results/grr003-validation-hf-smollm2-135m-base-choice.json`
 - Diagnostic report:
   `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-diagnosis.md`
+- Margin-scored rerun:
+  `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-margins.json`
+- Margin diagnostic report:
+  `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-margins-diagnosis.md`
 - Dataset:
   `../data/grr003/grr003-validation.jsonl`
 - Dataset SHA-256:
@@ -78,6 +82,10 @@ Observed result:
 - invalid-output pairs: `0/24`
 - same-answer-when-gold-flips: `24/24`
 - relation-family breakdowns are recorded in the result file.
+- margin-scored rerun average selected-vs-runner-up margin: `1.184`;
+  weakest family margins: `containment` average `0.130`, `vertical_order`
+  average `0.129`; strongest family margins: `distance_comparison` average
+  `3.205`, `point_identity` average `2.209`
 
 Uncertainty:
 

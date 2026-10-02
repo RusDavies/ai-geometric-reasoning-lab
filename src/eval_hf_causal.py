@@ -120,6 +120,16 @@ def select_answer_from_scores(scores: dict[str, float]) -> str:
     return max(scores.items(), key=lambda item: item[1])[0]
 
 
+def choice_runner_up_and_margin(scores: dict[str, float], answer: str) -> tuple[str | None, float | None]:
+    ordered = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+    if len(ordered) < 2:
+        return None, None
+    if ordered[0][0] != answer:
+        raise ValueError(f"selected answer {answer!r} is not the highest-scoring candidate")
+    runner_up, runner_up_score = ordered[1]
+    return runner_up, scores[answer] - runner_up_score
+
+
 def candidate_logprobs(
     prompt: str, model: Any, tokenizer: Any, candidates: list[str]
 ) -> dict[str, float]:
@@ -148,11 +158,15 @@ def run_hf_choice_item(
     prompt = build_prompt(item)
     scores = candidate_logprobs(prompt, model, tokenizer, item_allowed_labels(item))
     answer = select_answer_from_scores(scores)
+    runner_up, margin = choice_runner_up_and_margin(scores, answer)
     return ItemResult(
         raw_output=answer,
         parsed_answer=answer,
         correct=answer == item["answer"],
         invalid_output=False,
+        choice_scores=scores,
+        choice_margin=margin,
+        choice_runner_up=runner_up,
     )
 
 

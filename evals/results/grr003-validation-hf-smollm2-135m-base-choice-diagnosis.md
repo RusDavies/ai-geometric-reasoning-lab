@@ -22,19 +22,20 @@ Status: diagnostic report
 - Invalid-output pairs: `0`
 - Canonical accuracy: `12` / `24`
 - Perturbed accuracy: `7` / `24`
+- Choice-margin evidence: n/a
 
 ## Relation-Family Pattern
 
-| Relation family | Pairs | Canonical correct | Perturbed correct | Same prediction | Predicted transitions | Gold transitions |
-| --- | ---: | ---: | ---: | ---: | --- | --- |
-| between | 3 | 3 | 0 | 3 | `between -> between` (3) | `between -> not_between` (3) |
-| containment | 3 | 0 | 3 | 3 | `does_not_contain -> does_not_contain` (3) | `contains -> does_not_contain` (3) |
-| distance_comparison | 3 | 1 | 0 | 3 | `same_distance -> same_distance` (3) | `closer_to_first -> closer_to_second` (1), `closer_to_second -> closer_to_first` (1), `same_distance -> closer_to_first` (1) |
-| horizontal_order | 3 | 1 | 1 | 3 | `right_of -> right_of` (3) | `left_of -> right_of` (1), `right_of -> left_of` (1), `same_x -> left_of` (1) |
-| inside | 3 | 1 | 1 | 3 | `inside -> inside` (3) | `inside -> outside` (1), `boundary -> inside` (1), `outside -> boundary` (1) |
-| line_membership | 3 | 2 | 0 | 3 | `on_line -> on_line` (3) | `on_line -> off_line` (2), `on_segment -> off_segment` (1) |
-| point_identity | 3 | 3 | 0 | 3 | `same_point -> same_point` (3) | `same_point -> different_point` (3) |
-| vertical_order | 3 | 1 | 2 | 3 | `below -> below` (3) | `below -> above` (1), `above -> below` (1), `same_y -> below` (1) |
+| Relation family | Pairs | Canonical correct | Perturbed correct | Same prediction | Choice margins | Predicted transitions | Gold transitions |
+| --- | ---: | ---: | ---: | ---: | --- | --- | --- |
+| between | 3 | 3 | 0 | 3 | n/a | `between -> between` (3) | `between -> not_between` (3) |
+| containment | 3 | 0 | 3 | 3 | n/a | `does_not_contain -> does_not_contain` (3) | `contains -> does_not_contain` (3) |
+| distance_comparison | 3 | 1 | 0 | 3 | n/a | `same_distance -> same_distance` (3) | `closer_to_first -> closer_to_second` (1), `closer_to_second -> closer_to_first` (1), `same_distance -> closer_to_first` (1) |
+| horizontal_order | 3 | 1 | 1 | 3 | n/a | `right_of -> right_of` (3) | `left_of -> right_of` (1), `right_of -> left_of` (1), `same_x -> left_of` (1) |
+| inside | 3 | 1 | 1 | 3 | n/a | `inside -> inside` (3) | `inside -> outside` (1), `boundary -> inside` (1), `outside -> boundary` (1) |
+| line_membership | 3 | 2 | 0 | 3 | n/a | `on_line -> on_line` (3) | `on_line -> off_line` (2), `on_segment -> off_segment` (1) |
+| point_identity | 3 | 3 | 0 | 3 | n/a | `same_point -> same_point` (3) | `same_point -> different_point` (3) |
+| vertical_order | 3 | 1 | 2 | 3 | n/a | `below -> below` (3) | `below -> above` (1), `above -> below` (1), `same_y -> below` (1) |
 
 ## Diagnosis
 

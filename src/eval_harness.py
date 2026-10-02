@@ -46,6 +46,9 @@ class ItemResult:
     parsed_answer: str | None
     correct: bool
     invalid_output: bool
+    choice_scores: dict[str, float] | None = None
+    choice_margin: float | None = None
+    choice_runner_up: str | None = None
 
 
 def load_jsonl(path: Path, limit: int | None = None) -> list[dict[str, Any]]:

@@ -17,8 +17,16 @@ class DiagnoseEvalResultTests(unittest.TestCase):
                     "difficulty": 1,
                     "distractor_count": 0,
                     "comparison_side": "perturbed",
-                    "canonical": {"parsed_answer": "same_point", "correct": True},
-                    "comparison": {"parsed_answer": "same_point", "correct": False},
+                    "canonical": {
+                        "parsed_answer": "same_point",
+                        "correct": True,
+                        "choice_margin": 1.5,
+                    },
+                    "comparison": {
+                        "parsed_answer": "same_point",
+                        "correct": False,
+                        "choice_margin": 1.25,
+                    },
                 }
             ],
         }
@@ -37,6 +45,7 @@ class DiagnoseEvalResultTests(unittest.TestCase):
         family = analysis["by_family"]["point_identity"]
         self.assertEqual(family["gold_transitions"][("same_point", "different_point")], 1)
         self.assertEqual(family["predicted_transitions"][("same_point", "same_point")], 1)
+        self.assertEqual(family["margins"], [1.5, 1.25])
 
     def test_markdown_report_includes_follow_up_options(self) -> None:
         result = {
@@ -60,12 +69,14 @@ class DiagnoseEvalResultTests(unittest.TestCase):
             "both_correct_count": 0,
             "same_prediction_count": 1,
             "invalid_pair_count": 0,
+            "rows": [{"canonical_margin": 1.5, "comparison_margin": 1.25}],
             "by_family": {
                 "point_identity": {
                     "pair_count": 1,
                     "canonical_correct": 1,
                     "comparison_correct": 0,
                     "same_prediction": 1,
+                    "margins": [1.5, 1.25],
                     "predicted_transitions": Counter({("same_point", "same_point"): 1}),
                     "gold_transitions": Counter({("same_point", "different_point"): 1}),
                 }
@@ -79,9 +90,10 @@ class DiagnoseEvalResultTests(unittest.TestCase):
             analysis=analysis,
         )
 
-        self.assertIn("GR-031", report)
         self.assertIn("GR-032", report)
+        self.assertIn("GR-033", report)
         self.assertIn("same_point -> same_point", report)
+        self.assertIn("avg `1.375`", report)
 
 
 if __name__ == "__main__":

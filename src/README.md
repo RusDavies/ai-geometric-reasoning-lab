@@ -41,6 +41,10 @@ Choice-mode Hugging Face result files include per-label continuation scores,
 the selected label's runner-up, and the selected-vs-runner-up margin for each
 item.
 
+Use `--prompt-mode changed_statement` for a GRR-003 prompt intervention that
+adds the scoring side, relation family, changed statement index, and
+canonical/perturbed changed statements before the selected scene program.
+
 GRR-003 records use scene programs and per-record closed labels. The harnesses
 build an allowed-label prompt from each item and parse against that label set:
 
@@ -55,6 +59,15 @@ python3 src/diagnose_eval_result.py \
   --result evals/results/grr003-validation-hf-smollm2-135m-base-choice.json \
   --dataset data/grr003/grr003-validation.jsonl \
   --output evals/results/grr003-validation-hf-smollm2-135m-base-choice-diagnosis.md
+```
+
+Compare two choice-margin result files:
+
+```bash
+python3 src/compare_choice_margin_results.py \
+  --baseline evals/results/grr003-validation-hf-smollm2-135m-base-choice-margins.json \
+  --candidate evals/results/grr003-validation-hf-smollm2-135m-base-choice-changed-statement-margins.json \
+  --output evals/results/grr003-validation-hf-smollm2-135m-base-choice-changed-statement-comparison.md
 ```
 
 ## GRR-001 Generator

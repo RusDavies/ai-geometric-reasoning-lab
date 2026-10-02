@@ -26,3 +26,9 @@ For GRR-002 records, summaries include `invariance_failure_rate` and
   rerun of the same baseline with per-label choice scores and margins.
 - `grr003-validation-hf-smollm2-135m-base-choice-margins-diagnosis.md`:
   GR-032 choice-margin diagnosis for separating strong defaults from near-ties.
+- `grr003-validation-hf-smollm2-135m-base-choice-changed-statement-margins.json`:
+  GR-033 changed-statement prompt intervention with per-label choice margins.
+- `grr003-validation-hf-smollm2-135m-base-choice-changed-statement-margins-diagnosis.md`:
+  diagnosis for the GR-033 changed-statement prompt run.
+- `grr003-validation-hf-smollm2-135m-base-choice-changed-statement-comparison.md`:
+  GR-033 comparison against the GR-032 direct-prompt margin baseline.

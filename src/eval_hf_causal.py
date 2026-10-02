@@ -48,6 +48,26 @@ except ImportError:
 RunItem = Callable[[dict[str, Any]], ItemResult]
 
 
+CHANGED_STATEMENT_SCENE_PROMPT_TEMPLATE = """Answer the question using only the selected scene program below. Reply with exactly one allowed label.
+
+Allowed labels:
+{allowed_labels}
+
+Pair context:
+- Scoring side: {side}
+- Relation family: {relation_family}
+- Changed statement index: {changed_statement_index}
+- Canonical changed statement: {canonical_changed_statement}
+- Perturbed changed statement: {perturbed_changed_statement}
+
+Selected scene program:
+{program}
+
+Question:
+{question}
+"""
+
+
 def dependency_versions() -> dict[str, str]:
     versions: dict[str, str] = {}
     for name in ["torch", "transformers"]:
@@ -63,9 +83,15 @@ def dependency_versions() -> dict[str, str]:
 def evaluate_records(records: list[dict[str, Any]], run_item: RunItem) -> list[dict[str, Any]]:
     pair_results: list[dict[str, Any]] = []
     for record in records:
-        canonical = run_item(record["canonical"])
+        canonical_item = dict(record["canonical"])
+        canonical_item["_pair_context"] = record
+        canonical_item["_side"] = "canonical"
+        canonical = run_item(canonical_item)
         comparison_side = comparison_side_key(record)
-        comparison = run_item(record[comparison_side])
+        comparison_item = dict(record[comparison_side])
+        comparison_item["_pair_context"] = record
+        comparison_item["_side"] = comparison_side
+        comparison = run_item(comparison_item)
         expected_relation = record.get("expected_relation", "answer_flip")
         both_correct = canonical.correct and comparison.correct
         both_wrong = not canonical.correct and not comparison.correct
@@ -130,6 +156,44 @@ def choice_runner_up_and_margin(scores: dict[str, float], answer: str) -> tuple[
     return runner_up, scores[answer] - runner_up_score
 
 
+def changed_statement_prompt(item: dict[str, Any]) -> str:
+    record = item.get("_pair_context")
+    if not isinstance(record, dict) or "program" not in item:
+        return build_prompt(item)
+    changed_statement_index = record.get("changed_statement_index")
+    canonical_program = record.get("canonical", {}).get("program", [])
+    comparison_side = comparison_side_key(record)
+    perturbed_program = record.get(comparison_side, {}).get("program", [])
+
+    def statement_at(program: Any) -> str:
+        if (
+            isinstance(program, list)
+            and isinstance(changed_statement_index, int)
+            and 0 <= changed_statement_index < len(program)
+        ):
+            return str(program[changed_statement_index])
+        return "unknown"
+
+    program = "\n".join(item["program"])
+    allowed_labels = "\n".join(f"- {label}" for label in item_allowed_labels(item))
+    return CHANGED_STATEMENT_SCENE_PROMPT_TEMPLATE.format(
+        allowed_labels=allowed_labels,
+        side=item.get("_side", "unknown"),
+        relation_family=record.get("relation_family", "unknown"),
+        changed_statement_index=changed_statement_index,
+        canonical_changed_statement=statement_at(canonical_program),
+        perturbed_changed_statement=statement_at(perturbed_program),
+        program=program,
+        question=item["query"],
+    )
+
+
+def build_hf_prompt(item: dict[str, Any], prompt_mode: str) -> str:
+    if prompt_mode == "changed_statement":
+        return changed_statement_prompt(item)
+    return build_prompt(item)
+
+
 def candidate_logprobs(
     prompt: str, model: Any, tokenizer: Any, candidates: list[str]
 ) -> dict[str, float]:
@@ -155,7 +219,7 @@ def candidate_logprobs(
 def run_hf_choice_item(
     item: dict[str, Any], model: Any, tokenizer: Any, args: argparse.Namespace
 ) -> ItemResult:
-    prompt = build_prompt(item)
+    prompt = build_hf_prompt(item, getattr(args, "prompt_mode", "direct"))
     scores = candidate_logprobs(prompt, model, tokenizer, item_allowed_labels(item))
     answer = select_answer_from_scores(scores)
     runner_up, margin = choice_runner_up_and_margin(scores, answer)
@@ -173,7 +237,7 @@ def run_hf_choice_item(
 def run_hf_item(item: dict[str, Any], model: Any, tokenizer: Any, args: argparse.Namespace) -> ItemResult:
     import torch
 
-    prompt = build_prompt(item)
+    prompt = build_hf_prompt(item, getattr(args, "prompt_mode", "direct"))
     encoded = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=args.max_length)
     with torch.no_grad():
         output_ids = model.generate(
@@ -230,6 +294,7 @@ def run_eval(args: argparse.Namespace) -> dict[str, Any]:
             "prompt_template": "dynamic: facts prompt or scene-program allowed-label prompt",
             "generation_options": {
                 "answer_mode": args.answer_mode,
+                "prompt_mode": args.prompt_mode,
                 "do_sample": False,
                 "max_new_tokens": args.max_new_tokens,
                 "max_length": args.max_length,
@@ -253,6 +318,7 @@ def main() -> int:
     parser.add_argument("--max-length", type=int, default=512)
     parser.add_argument("--max-new-tokens", type=int, default=8)
     parser.add_argument("--answer-mode", choices=["generate", "choice"], default="generate")
+    parser.add_argument("--prompt-mode", choices=["direct", "changed_statement"], default="direct")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--torch-threads", type=int, default=4)
     parser.add_argument("--bootstrap-samples", type=int, default=1000)

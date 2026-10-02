@@ -57,8 +57,11 @@ class EvalHFCausalTests(unittest.TestCase):
 
     def test_evaluate_records_handles_grr003_label_changes(self) -> None:
         records = generate_grr003.generate_split("validation", 1)
+        seen: dict[str, object] = {}
 
         def run_item(item: dict) -> eval_harness.ItemResult:
+            seen["context"] = item.get("_pair_context")
+            seen["side"] = item.get("_side")
             return eval_harness.ItemResult(
                 raw_output=item["answer"],
                 parsed_answer=item["answer"],
@@ -70,8 +73,24 @@ class EvalHFCausalTests(unittest.TestCase):
 
         self.assertEqual(pair_results[0]["expected_relation"], "label_changes")
         self.assertEqual(pair_results[0]["relation_family"], "point_identity")
+        self.assertIs(seen["context"], records[0])
+        self.assertEqual(seen["side"], "perturbed")
         self.assertTrue(pair_results[0]["both_correct"])
         self.assertFalse(pair_results[0]["flip_failure"])
+
+    def test_changed_statement_prompt_includes_pair_context(self) -> None:
+        record = generate_grr003.generate_split("validation", 1)[0]
+        item = dict(record["canonical"])
+        item["_pair_context"] = record
+        item["_side"] = "canonical"
+
+        prompt = eval_hf_causal.changed_statement_prompt(item)
+
+        self.assertIn("Pair context:", prompt)
+        self.assertIn("Scoring side: canonical", prompt)
+        self.assertIn(f"Relation family: {record['relation_family']}", prompt)
+        self.assertIn("Canonical changed statement:", prompt)
+        self.assertIn("Perturbed changed statement:", prompt)
 
     def test_hf_choice_item_uses_item_allowed_labels(self) -> None:
         item = {

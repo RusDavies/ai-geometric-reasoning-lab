@@ -55,6 +55,10 @@ Evidence:
   `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-margins.json`
 - Margin diagnostic report:
   `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-margins-diagnosis.md`
+- Changed-statement prompt result:
+  `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-changed-statement-margins.json`
+- Changed-statement comparison:
+  `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-changed-statement-comparison.md`
 - Dataset:
   `../data/grr003/grr003-validation.jsonl`
 - Dataset SHA-256:
@@ -86,6 +90,9 @@ Observed result:
   weakest family margins: `containment` average `0.130`, `vertical_order`
   average `0.129`; strongest family margins: `distance_comparison` average
   `3.205`, `point_identity` average `2.209`
+- changed-statement prompt intervention changed `0/48` item predictions and
+  `0/48` item correctness values versus the direct-prompt margin baseline;
+  average margin changed from `1.184` to `1.265`
 
 Uncertainty:
 

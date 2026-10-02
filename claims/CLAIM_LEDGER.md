@@ -49,6 +49,8 @@ Evidence:
 
 - Result file:
   `../evals/results/grr003-validation-hf-smollm2-135m-base-choice.json`
+- Diagnostic report:
+  `../evals/results/grr003-validation-hf-smollm2-135m-base-choice-diagnosis.md`
 - Dataset:
   `../data/grr003/grr003-validation.jsonl`
 - Dataset SHA-256:

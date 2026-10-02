@@ -44,6 +44,15 @@ build an allowed-label prompt from each item and parse against that label set:
 python3 src/eval_hf_causal.py --dataset data/grr003/grr003-validation.jsonl --answer-mode choice
 ```
 
+Diagnose paired eval result patterns against the source dataset:
+
+```bash
+python3 src/diagnose_eval_result.py \
+  --result evals/results/grr003-validation-hf-smollm2-135m-base-choice.json \
+  --dataset data/grr003/grr003-validation.jsonl \
+  --output evals/results/grr003-validation-hf-smollm2-135m-base-choice-diagnosis.md
+```
+
 ## GRR-001 Generator
 
 Generate deterministic GRR-001 train, validation, and held-out test splits:

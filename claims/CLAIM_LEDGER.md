@@ -33,6 +33,64 @@ Use these status values:
 
 ## Measured Results
 
+### CLAIM-0009: SmolLM2-135M Fails GRR-003 Closed-Label Validation Pairs
+
+Status: measured
+Date: 2026-10-02
+Recorder: Project maintainers
+
+Claim:
+
+Under closed-label answer-choice scoring, base SmolLM2-135M does not solve any
+complete GRR-003 validation pair, even though it produces parseable labels for
+every item.
+
+Evidence:
+
+- Result file:
+  `../evals/results/grr003-validation-hf-smollm2-135m-base-choice.json`
+- Dataset:
+  `../data/grr003/grr003-validation.jsonl`
+- Dataset SHA-256:
+  `4a22bcee662f7f95a4af0222acf670779ad9b974e7e373c7580e22cc94c46ad8`
+- Scoring code: `../src/eval_hf_causal.py`
+- Rail spec: `../evals/rails/GRR-003-spatial-program.md`
+
+Model/settings:
+
+- model: `HuggingFaceTB/SmolLM2-135M`
+- provider: Hugging Face causal LM
+- answer mode: `choice`
+- prompt template: dynamic scene-program prompt with per-record allowed labels
+- decoding: no sampling; `seed=1`; `max_length=512`; `max_new_tokens=8`
+- dependencies: `torch==2.14.0+cu130`, `transformers==5.16.1`
+- held-out test use: none; validation split only
+
+Observed result:
+
+- validation pairs: `24`
+- canonical accuracy: `12/24`
+- perturbed accuracy: `7/24`
+- both-correct pairs: `0/24`
+- flip failures: `24/24`
+- invalid-output pairs: `0/24`
+- same-answer-when-gold-flips: `24/24`
+- relation-family breakdowns are recorded in the result file.
+
+Uncertainty:
+
+- The validation split is small and synthetic.
+- This is answer-choice scoring, not free-form instruction-following evidence.
+- The result supports only a bounded negative baseline for this model, split,
+  prompt contract, and scoring implementation.
+
+Caveats:
+
+- The result does not show that GRR-003 is intrinsically difficult for larger
+  or geometry-specialized models.
+- Closed-label scoring removes output-format failure, but the model still
+  chooses the same label across every label-changing pair.
+
 ### CLAIM-0008: GRR-002 Generator Emits Balanced Invariance-Control Splits
 
 Status: measured

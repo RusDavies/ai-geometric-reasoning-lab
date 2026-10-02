@@ -11,6 +11,15 @@ class EvalHFCausalTests(unittest.TestCase):
 
         self.assertEqual(answer, "False")
 
+    def test_choice_margin_reports_runner_up_gap(self) -> None:
+        runner_up, margin = eval_hf_causal.choice_runner_up_and_margin(
+            {"True": -2.0, "False": -0.5, "Maybe": -1.25},
+            "False",
+        )
+
+        self.assertEqual(runner_up, "Maybe")
+        self.assertAlmostEqual(margin, 0.75)
+
     def test_evaluate_records_reuses_pair_metrics_contract(self) -> None:
         records = generate_grr001.generate_split("validation", 1)
 
@@ -87,6 +96,9 @@ class EvalHFCausalTests(unittest.TestCase):
         self.assertEqual(seen["candidates"], item["allowed_labels"])
         self.assertEqual(result.parsed_answer, "right_of")
         self.assertTrue(result.correct)
+        self.assertEqual(result.choice_scores, {"left_of": -3.0, "right_of": -0.1, "same_x": -2.0})
+        self.assertEqual(result.choice_runner_up, "same_x")
+        self.assertAlmostEqual(result.choice_margin or 0.0, 1.9)
 
 
 if __name__ == "__main__":

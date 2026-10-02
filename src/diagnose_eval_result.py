@@ -44,6 +44,20 @@ def counter_text(counter: Counter[Any]) -> str:
     return ", ".join(parts)
 
 
+def margin_value(result: dict[str, Any]) -> float | None:
+    value = result.get("choice_margin")
+    if isinstance(value, int | float):
+        return float(value)
+    return None
+
+
+def margin_text(values: list[float | None]) -> str:
+    present = [value for value in values if value is not None]
+    if not present:
+        return "n/a"
+    return f"avg `{sum(present) / len(present):.3f}`, min `{min(present):.3f}`"
+
+
 def comparison_result(pair: dict[str, Any]) -> dict[str, Any]:
     if "comparison" in pair:
         return pair["comparison"]
@@ -77,6 +91,8 @@ def analyze(result: dict[str, Any], dataset_records: dict[str, dict[str, Any]]) 
                 "comparison_pred": comparison_pred,
                 "canonical_correct": pair["canonical"]["correct"],
                 "comparison_correct": comparison["correct"],
+                "canonical_margin": margin_value(pair["canonical"]),
+                "comparison_margin": margin_value(comparison),
                 "same_prediction": canonical_pred is not None
                 and canonical_pred == comparison_pred,
             }
@@ -114,6 +130,11 @@ def analyze(result: dict[str, Any], dataset_records: dict[str, dict[str, Any]]) 
             "predicted_labels": Counter(row["canonical_pred"] for row in family_rows)
             + Counter(row["comparison_pred"] for row in family_rows),
             "difficulty_values": Counter(row["difficulty"] for row in family_rows),
+            "margins": [
+                margin
+                for row in family_rows
+                for margin in (row["canonical_margin"], row["comparison_margin"])
+            ],
         }
 
     return {
@@ -132,10 +153,18 @@ def markdown_report(
     run = result["run"]
     summary = result["summary"]
     counts = summary["counts"]
+    all_margins = [
+        margin
+        for row in analysis["rows"]
+        for margin in (row["canonical_margin"], row["comparison_margin"])
+    ]
+    has_margin_evidence = any(margin is not None for margin in all_margins)
+    backlog_item = "GR-032" if has_margin_evidence else "GR-031"
+    title_suffix = "Choice-Margin Diagnosis" if has_margin_evidence else "Same-Answer Diagnosis"
     lines = [
-        "# GRR-003 SmolLM2-135M Same-Answer Diagnosis",
+        f"# GRR-003 SmolLM2-135M {title_suffix}",
         "",
-        "Backlog item: GR-031",
+        f"Backlog item: {backlog_item}",
         "Status: diagnostic report",
         "",
         "## Inputs",
@@ -157,11 +186,12 @@ def markdown_report(
         f"- Invalid-output pairs: `{analysis['invalid_pair_count']}`",
         f"- Canonical accuracy: `{counts.get('canonical_correct')}` / `{analysis['total_pairs']}`",
         f"- Perturbed accuracy: `{counts.get('perturbed_correct')}` / `{analysis['total_pairs']}`",
+        f"- Choice-margin evidence: {margin_text(all_margins)}",
         "",
         "## Relation-Family Pattern",
         "",
-        "| Relation family | Pairs | Canonical correct | Perturbed correct | Same prediction | Predicted transitions | Gold transitions |",
-        "| --- | ---: | ---: | ---: | ---: | --- | --- |",
+        "| Relation family | Pairs | Canonical correct | Perturbed correct | Same prediction | Choice margins | Predicted transitions | Gold transitions |",
+        "| --- | ---: | ---: | ---: | ---: | --- | --- | --- |",
     ]
     for family, stats in analysis["by_family"].items():
         lines.append(
@@ -173,6 +203,7 @@ def markdown_report(
                     str(stats["canonical_correct"]),
                     str(stats["comparison_correct"]),
                     str(stats["same_prediction"]),
+                    margin_text(stats["margins"]),
                     counter_text(stats["predicted_transitions"]),
                     counter_text(stats["gold_transitions"]),
                 ]
@@ -198,13 +229,39 @@ def markdown_report(
             "`same_distance -> same_distance`, `right_of -> right_of`, `inside -> inside`,",
             "`below -> below`, and `between -> between`.",
             "",
-            "## Follow-Up Options",
-            "",
-            "- GR-032 should add a diagnostic scoring/export pass that records per-label candidate scores or margins, so we can distinguish strong default bias from near-ties.",
-            "- A prompt variant should ask for the changed statement and relation before the final label, then compare choice-only scoring against generate-and-parse scoring.",
-            "- A larger or stronger baseline should be run on the same GRR-003 split before treating this as a dataset-level difficulty claim.",
-            "- The generator should preserve these small validation pairs, but future validation should add more examples per relation family before broad claims.",
-            "",
+        ]
+    )
+    if has_margin_evidence:
+        lines.extend(
+            [
+                "The margin evidence is mixed rather than one-note. Distance comparison and point",
+                "identity show strong default-label preferences, while containment and vertical order",
+                "are much closer to runner-up ties. That means the same-answer collapse is partly",
+                "strong family-default bias and partly fragile near-tie scoring, depending on the",
+                "relation family.",
+                "",
+                "## Follow-Up Options",
+                "",
+                "- GR-033 should run a GRR-003 prompt-intervention diagnostic that asks for the changed statement and relation before the final label, then compares choice margins against this baseline.",
+                "- A stronger baseline should be run on the same split before treating this as dataset-level difficulty rather than small-model brittleness.",
+                "- Future GRR-003 validation should add more examples per relation family so margin summaries are less hostage to three examples at a time.",
+                "",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "## Follow-Up Options",
+                "",
+                "- GR-032 should add a diagnostic scoring/export pass that records per-label candidate scores or margins, so we can distinguish strong default bias from near-ties.",
+                "- A prompt variant should ask for the changed statement and relation before the final label, then compare choice-only scoring against generate-and-parse scoring.",
+                "- A larger or stronger baseline should be run on the same GRR-003 split before treating this as a dataset-level difficulty claim.",
+                "- The generator should preserve these small validation pairs, but future validation should add more examples per relation family before broad claims.",
+                "",
+            ]
+        )
+    lines.extend(
+        [
             "## Bounded Claim",
             "",
             "This diagnosis supports only the bounded claim that SmolLM2-135M, under this closed-label",

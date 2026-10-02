@@ -22,3 +22,7 @@ For GRR-002 records, summaries include `invariance_failure_rate` and
   closed-label answer-choice baseline for SmolLM2-135M.
 - `grr003-validation-hf-smollm2-135m-base-choice-diagnosis.md`: GR-031
   same-answer failure diagnosis for that GRR-003 baseline.
+- `grr003-validation-hf-smollm2-135m-base-choice-margins.json`: GR-032
+  rerun of the same baseline with per-label choice scores and margins.
+- `grr003-validation-hf-smollm2-135m-base-choice-margins-diagnosis.md`:
+  GR-032 choice-margin diagnosis for separating strong defaults from near-ties.
